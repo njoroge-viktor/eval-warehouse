@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Raw evaluation telemetry, loaded as dbt seeds."
+    schema: raw
+    tables:
+      - name: raw_annotations
+        description: "One row per annotator per item per criterion."
+      - name: raw_comparisons
+        description: "Pairwise model preference judgements."
+      - name: raw_runs
+        description: "Evaluation run metadata."

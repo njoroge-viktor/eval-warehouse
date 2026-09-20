@@ -1,0 +1,52 @@
+name: 'eval_warehouse'
+version: '0.1.0'
+config-version: 2
+
+profile: 'eval_warehouse'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+analysis-paths: ["analyses"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  eval_warehouse:
+    staging:
+      +materialized: view
+      +schema: staging
+    marts:
+      +materialized: table
+      +schema: marts
+
+seeds:
+  eval_warehouse:
+    +schema: raw
+    raw_annotations:
+      +column_types:
+        item_id: varchar
+        annotator_id: varchar
+        criterion: varchar
+        raw_score: integer
+        passed: boolean
+        scored_at: timestamp
+        model: varchar
+        run_id: varchar
+    raw_comparisons:
+      +column_types:
+        prompt_id: varchar
+        annotator_id: varchar
+        model_a: varchar
+        model_b: varchar
+        verdict: varchar
+        scored_at: timestamp
+    raw_runs:
+      +column_types:
+        run_id: varchar
+        suite: varchar
+        started_at: timestamp

@@ -1,0 +1,13 @@
+# Committed profile so the project runs from a clean checkout with no setup.
+# DuckDB is file-based, so "the warehouse" is a single .duckdb file — no server.
+eval_warehouse:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "target/eval_warehouse.duckdb"
+      threads: 4
+    ci:
+      type: duckdb
+      path: "target/eval_warehouse.duckdb"
+      threads: 2

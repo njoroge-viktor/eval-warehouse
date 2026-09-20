@@ -1,0 +1,70 @@
+version: 2
+
+models:
+  - name: fct_criterion_pass_rates
+    description: "Pass rate per run x model x criterion, with a 95% Wilson lower bound."
+    columns:
+      - name: run_id
+        tests: [not_null]
+      - name: model
+        tests: [not_null]
+      - name: criterion
+        tests: [not_null]
+      - name: pass_rate
+        description: "Fraction of annotations marking the item as passed."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: pass_rate_lower_95
+        description: "Wilson lower bound; never exceeds the point estimate."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+    tests:
+      # The grain must be unique, or every downstream aggregate double-counts.
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [run_id, model, criterion]
+
+  - name: fct_model_leaderboard
+    description: "Per-run model ranking by Wilson lower bound, with head-to-head record."
+    columns:
+      - name: rank
+        tests: [not_null]
+      - name: model
+        tests: [not_null]
+      - name: win_rate
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [run_id, model]
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [run_id, rank]
+
+  - name: fct_agreement
+    description: "Fleiss' kappa per run x model x criterion (two raters per item)."
+    columns:
+      - name: fleiss_kappa
+        description: "Chance-corrected agreement; can be negative."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: -1
+              max_value: 1
+
+  - name: fct_run_regressions
+    description: "Criterion pass-rate change vs the prior run, with a two-proportion z test."
+    columns:
+      - name: classification
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['regression', 'improvement', 'noise', 'insufficient_data']
+      - name: delta
+        tests: [not_null]

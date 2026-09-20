@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: stg_annotations
+    columns:
+      - name: item_id
+        tests: [not_null]
+      - name: passed
+        tests: [not_null]
+      - name: raw_score
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 5
+  - name: stg_comparisons
+    columns:
+      - name: verdict
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['a', 'b', 'tie']
+  - name: stg_runs
+    columns:
+      - name: run_id
+        tests: [not_null, unique]
